@@ -10,7 +10,8 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
+      allow read: if (request.auth != null && request.auth.uid == userId) || 
+                  (resource == null || resource.data.isPublicProfile == true);
                   
       allow create: if request.auth != null && request.auth.uid == userId
                     && request.resource.data.role == 'student'
@@ -20,51 +21,20 @@ service cloud.firestore {
         // Cannot change role or admin status
         && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'isAdmin']))
         && (
+          // If totalXP changes, must be valid amount
           (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['totalXP'])) ||
-          (request.resource.data.totalXP >= resource.data.totalXP && (request.resource.data.totalXP - resource.data.totalXP) <= 1000)
+          (
+            request.resource.data.totalXP >= resource.data.totalXP &&
+            (request.resource.data.totalXP - resource.data.totalXP) <= 1000
+          )
         )
         && (
-          (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['level'])) ||
-          (request.resource.data.level == resource.data.level + 1 || request.resource.data.level == resource.data.level)
-        )
-        && (
+          // If completedProblems changes, must only increment/decrement by 1
           (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['completedProblems'])) ||
-          (request.resource.data.completedProblems == resource.data.completedProblems + 1 || request.resource.data.completedProblems == resource.data.completedProblems - 1)
-        )
-        && (
-          (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['currentStreak'])) ||
-          (request.resource.data.currentStreak == resource.data.currentStreak + 1 || request.resource.data.currentStreak <= 1)
-        )
-        && (
-          (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['longestStreak'])) ||
-          (request.resource.data.longestStreak == resource.data.longestStreak + 1 || request.resource.data.longestStreak == resource.data.longestStreak)
-        );
-    }
-    
-    match /public_profiles/{userId} {
-      allow read: if true;
-      allow create: if request.auth != null && request.auth.uid == userId;
-      allow delete: if request.auth != null && request.auth.uid == userId;
-      allow update: if request.auth != null && request.auth.uid == userId 
-        && (
-          (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['totalXP'])) ||
-          (request.resource.data.totalXP >= resource.data.totalXP && (request.resource.data.totalXP - resource.data.totalXP) <= 1000)
-        )
-        && (
-          (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['level'])) ||
-          (request.resource.data.level == resource.data.level + 1 || request.resource.data.level == resource.data.level)
-        )
-        && (
-          (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['completedProblems'])) ||
-          (request.resource.data.completedProblems == resource.data.completedProblems + 1 || request.resource.data.completedProblems == resource.data.completedProblems - 1)
-        )
-        && (
-          (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['currentStreak'])) ||
-          (request.resource.data.currentStreak == resource.data.currentStreak + 1 || request.resource.data.currentStreak <= 1)
-        )
-        && (
-          (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['longestStreak'])) ||
-          (request.resource.data.longestStreak == resource.data.longestStreak + 1 || request.resource.data.longestStreak == resource.data.longestStreak)
+          (
+            request.resource.data.completedProblems == resource.data.completedProblems + 1 ||
+            request.resource.data.completedProblems == resource.data.completedProblems - 1
+          )
         );
     }
 
@@ -72,6 +42,11 @@ service cloud.firestore {
       allow read: if true;
       allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
       allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
+    }
+    
+    match /public_profiles/{userId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
 
     match /roadmaps/{document} {
@@ -95,26 +70,27 @@ service cloud.firestore {
     }
     
     match /user_progress/{document} {
-      allow read, delete: if request.auth != null && request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId
-                    && document == request.auth.uid + "_" + request.resource.data.problemId;
-      allow update: if request.auth != null && request.auth.uid == resource.data.userId 
-                    && request.resource.data.userId == request.auth.uid;
+      allow get: if request.auth != null && (resource == null || resource.data.userId == request.auth.uid);
+      allow list: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null && resource.data.userId == request.auth.uid && request.resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
     
     match /user_notes/{document} {
-      allow read, delete: if request.auth != null && request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
-      allow update: if request.auth != null && request.auth.uid == resource.data.userId 
-                    && request.resource.data.userId == request.auth.uid;
+      allow get: if request.auth != null && (resource == null || resource.data.userId == request.auth.uid);
+      allow list: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null && resource.data.userId == request.auth.uid && request.resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
     
     match /xp_history/{document} {
-      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null 
-        && request.auth.uid == request.resource.data.userId 
-        && document == request.auth.uid + "_" + request.resource.data.problemId
-        && request.resource.data.xp in [10, 25, 50, 100];
+      allow get: if request.auth != null && (resource == null || resource.data.userId == request.auth.uid);
+      allow list: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null && resource.data.userId == request.auth.uid && request.resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
     
     match /badges/{document} {
@@ -123,19 +99,19 @@ service cloud.firestore {
     }
     
     match /user_badges/{document} {
-      allow read, delete: if request.auth != null && request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null 
-        && request.auth.uid == request.resource.data.userId
-        && document == request.auth.uid + "_" + request.resource.data.badgeId
-        && request.resource.data.xpReward <= 1000;
-      allow update: if false; // Badges never update XP after creation
+      allow get: if request.auth != null && (resource == null || resource.data.userId == request.auth.uid);
+      allow list: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null && resource.data.userId == request.auth.uid && request.resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
     
     match /user_activity/{document} {
-      allow read, delete: if request.auth != null && request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
-      allow update: if request.auth != null && request.auth.uid == resource.data.userId 
-                    && request.resource.data.userId == request.auth.uid;
+      allow get: if request.auth != null && (resource == null || resource.data.userId == request.auth.uid);
+      allow list: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null && resource.data.userId == request.auth.uid && request.resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
   }
 }

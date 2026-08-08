@@ -92,14 +92,14 @@ export default function TopicDetailPage() {
   if (!topic) {
     return (
       <div className="max-w-4xl mx-auto">
-        <Button variant="ghost" className="mb-6 -ml-4" render={<Link href="/roadmap" />}>
+        <Button variant="ghost" className="mb-6 -ml-4" nativeButton={false} render={<Link href="/roadmap" />}>
           <ArrowLeft className="mr-2 h-4 w-4" /> Back to Roadmap
         </Button>
         <EmptyState 
           title="Topic Not Found"
           description="The topic you are looking for does not exist or has been disabled."
           icon={<Target className="text-muted-foreground" />}
-          action={<Button render={<Link href="/roadmap" />} variant="outline">Browse Roadmap</Button>}
+          action={<Button nativeButton={false} render={<Link href="/roadmap" />} variant="outline">Browse Roadmap</Button>}
         />
       </div>
     );
@@ -125,7 +125,7 @@ export default function TopicDetailPage() {
   return (
     <div className="space-y-8 pb-10 max-w-4xl mx-auto">
       <div>
-        <Button variant="ghost" className="mb-2 -ml-4" render={<Link href="/roadmap" />}>
+        <Button variant="ghost" className="mb-2 -ml-4" nativeButton={false} render={<Link href="/roadmap" />}>
           <ArrowLeft className="mr-2 h-4 w-4" /> Back to Roadmap
         </Button>
         <SectionHeader 

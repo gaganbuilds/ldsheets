@@ -214,6 +214,7 @@ export function ProblemRow({ problem, userId, initialProgress, initialNote, onPr
               variant="outline" 
               size="sm" 
               className="flex-1 sm:flex-none w-full sm:w-auto hover:bg-primary hover:text-primary-foreground"
+              nativeButton={false}
               render={<a href={problem.externalURL} target="_blank" rel="noopener noreferrer" />}
             >
               Solve Problem <ExternalLink className="ml-2 h-3.5 w-3.5" />

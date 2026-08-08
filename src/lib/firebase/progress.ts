@@ -45,15 +45,18 @@ export const markProblemComplete = async (
   
   try {
     await runTransaction(db, async (transaction) => {
+      // --- ALL READS ---
       // 1. Check if XP history already exists for this exact problem and user
       const xpHistoryRef = doc(db, XP_HISTORY_COL, `${userId}_${problemId}`);
       const xpHistorySnap = await transaction.get(xpHistoryRef);
       
+      let settingsSnap = null;
+      let userSnap = null;
       let xpToAward = 0;
       
       if (!xpHistorySnap.exists()) {
         const settingsRef = doc(db, 'settings', 'global');
-        const settingsSnap = await transaction.get(settingsRef);
+        settingsSnap = await transaction.get(settingsRef);
         
         let xpValues = { easyXP: 10, mediumXP: 25, hardXP: 50 };
         if (settingsSnap.exists()) {
@@ -65,54 +68,63 @@ export const markProblemComplete = async (
         else if (difficulty === 'Hard') xpToAward = xpValues.hardXP || 50;
         
         if (xpToAward > 0) {
-           awardedXP = xpToAward;
-           
            const userRef = doc(db, USERS_COL, userId);
-           const userSnap = await transaction.get(userRef);
-           
-           let newTotalXP = xpToAward;
-           let completedCount = 1;
-           if (userSnap.exists()) {
-             newTotalXP = (userSnap.data().totalXP || 0) + xpToAward;
-             completedCount = (userSnap.data().completedProblems || 0) + 1;
-           }
-           
-           const newLevel = calculateLevel(newTotalXP);
-           
-           transaction.set(xpHistoryRef, {
-             userId,
-             problemId,
-             xp: xpToAward,
-             difficulty,
-             reason: 'problem_completion',
-             awardedAt: now
-           });
-           
-           transaction.update(userRef, {
-             totalXP: newTotalXP,
-             level: newLevel,
-             completedProblems: completedCount,
-             lastProblemId: problemId,
-             updatedAt: now
-           });
-           
-           if (userSnap.data()?.isPublicProfile) {
-             const publicRef = doc(db, 'public_profiles', userId);
-             transaction.set(publicRef, {
-               totalXP: newTotalXP,
-               level: newLevel,
-               completedProblems: completedCount,
-               updatedAt: now
-             }, { merge: true });
-           }
+           userSnap = await transaction.get(userRef);
         }
       }
       
-      // Update Daily Activity inside transaction
+      // Daily Activity read
       const jsNow = now.toDate();
       const dateKey = `${jsNow.getFullYear()}-${String(jsNow.getMonth() + 1).padStart(2, '0')}-${String(jsNow.getDate()).padStart(2, '0')}`;
       const activityRef = doc(db, 'user_activity', `${userId}_${dateKey}`);
       const activitySnap = await transaction.get(activityRef);
+      
+      // Progress read
+      const targetProgressId = `${userId}_${problemId}`;
+      const progRef = doc(db, COLLECTION_NAME, targetProgressId);
+      const progSnap = await transaction.get(progRef);
+      
+      // --- ALL WRITES ---
+      if (!xpHistorySnap.exists() && xpToAward > 0) {
+         awardedXP = xpToAward;
+         
+         let newTotalXP = xpToAward;
+         let completedCount = 1;
+         if (userSnap && userSnap.exists()) {
+           newTotalXP = (userSnap.data().totalXP || 0) + xpToAward;
+           completedCount = (userSnap.data().completedProblems || 0) + 1;
+         }
+         
+         const newLevel = calculateLevel(newTotalXP);
+         
+         transaction.set(xpHistoryRef, {
+           userId,
+           problemId,
+           xp: xpToAward,
+           difficulty,
+           reason: 'problem_completion',
+           awardedAt: now
+         });
+         
+         const userRef = doc(db, USERS_COL, userId);
+         transaction.update(userRef, {
+           totalXP: newTotalXP,
+           level: newLevel,
+           completedProblems: completedCount,
+           lastProblemId: problemId,
+           updatedAt: now
+         });
+         
+         if (userSnap && userSnap.data()?.isPublicProfile) {
+           const publicRef = doc(db, 'public_profiles', userId);
+           transaction.set(publicRef, {
+             totalXP: newTotalXP,
+             level: newLevel,
+             completedProblems: completedCount,
+             updatedAt: now
+           }, { merge: true });
+         }
+      }
       
       if (activitySnap.exists()) {
         transaction.update(activityRef, {
@@ -132,11 +144,7 @@ export const markProblemComplete = async (
         });
       }
       
-      // Finally update progress
-      const targetProgressId = `${userId}_${problemId}`;
-      const progRef = doc(db, COLLECTION_NAME, targetProgressId);
-      
-      if (existingProgressId) {
+      if (progSnap.exists()) {
         transaction.update(progRef, {
           completed: true,
           completedAt: now,
@@ -163,8 +171,13 @@ export const markProblemComplete = async (
     
     return { progressId: existingProgressId as string, xpAwarded: awardedXP };
     
-  } catch (error) {
-    console.error("Transaction failed: ", error);
+  } catch (error: any) {
+    console.error('==================================================');
+    console.error('TRANSACTION FAILED IN MARK PROBLEM COMPLETE');
+    console.error('Error code:', error?.code);
+    console.error('Error message:', error?.message);
+    console.error('Full Error:', error);
+    console.error('==================================================');
     throw error;
   }
 };
