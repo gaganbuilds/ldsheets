@@ -31,8 +31,8 @@ export function BadgeCard({ badge, userBadge }: BadgeCardProps) {
 
   return (
     <Card className={`overflow-hidden transition-all duration-300 ${isUnlocked ? 'border-primary/50 bg-primary/5 shadow-sm' : 'border-border opacity-70 grayscale-[50%]'}`}>
-      <CardContent className="p-6 flex flex-col items-center text-center space-y-4">
-        <div className={`p-4 rounded-full ${isUnlocked ? 'bg-primary/20' : 'bg-muted'}`}>
+      <CardContent className="p-4 sm:p-6 flex flex-col items-center text-center space-y-3 sm:space-y-4">
+        <div className={`p-3 sm:p-4 rounded-full ${isUnlocked ? 'bg-primary/20' : 'bg-muted'}`}>
           {getIcon(badge.icon, isUnlocked)}
         </div>
         

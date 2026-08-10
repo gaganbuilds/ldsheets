@@ -141,8 +141,8 @@ export default function StudentDashboard() {
         />
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-8">
+      <div className="grid gap-6 lg:gap-8 lg:grid-cols-3">
+        <div className="lg:col-span-2 space-y-6 lg:space-y-8">
           
           {/* Level Progress */}
           <Card>
@@ -183,7 +183,7 @@ export default function StudentDashboard() {
             </CardHeader>
             <CardContent className="pt-6">
               {userBadges.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-4">
                   {userBadges
                     .sort((a, b) => b.unlockedAt.getTime() - a.unlockedAt.getTime())
                     .slice(0, 3)
@@ -275,7 +275,7 @@ export default function StudentDashboard() {
           </div>
 
           {/* 1. Heatmap / Consistency */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 min-w-0">
             <ActivityHeatmap 
               activity={activity} 
               currentStreak={profile?.currentStreak || 0} 
@@ -284,7 +284,7 @@ export default function StudentDashboard() {
           </div>
         </div>
         
-        <div className="space-y-8">
+        <div className="space-y-6 lg:space-y-8">
           
           {/* 7. Daily Goal Preview */}
           <Card>

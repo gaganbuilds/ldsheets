@@ -219,7 +219,7 @@ export default function AdminProblemsPage() {
 
       {/* Create/Edit Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[95vw] sm:w-full max-w-3xl max-h-[90vh] overflow-y-auto">
           <form onSubmit={handleSubmit}>
             <DialogHeader>
               <DialogTitle>{currentProblem.id ? 'Edit Problem' : 'Create Problem'}</DialogTitle>

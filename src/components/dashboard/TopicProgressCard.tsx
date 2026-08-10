@@ -13,7 +13,7 @@ export function TopicProgressCard({ topic, totalProblems, completedProblems }: T
 
   return (
     <Card>
-      <CardContent className="p-4 flex flex-col gap-3">
+      <CardContent className="p-3 sm:p-4 flex flex-col gap-2 sm:gap-3">
         <div className="flex justify-between items-start">
           <div className="font-semibold">{topic.title}</div>
           <div className="text-sm text-muted-foreground">{percentage}%</div>

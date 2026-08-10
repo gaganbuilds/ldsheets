@@ -247,7 +247,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Trends */}
-        <div className="space-y-6 lg:col-span-2">
+        <div className="space-y-6 lg:col-span-2 min-w-0">
           <div className="grid gap-6 md:grid-cols-2 h-[220px]">
             <SimpleBarChart 
               title={`Activity Trend (${insights.activityTrend.activeDays} active days)`}

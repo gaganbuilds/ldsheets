@@ -63,7 +63,7 @@ export function TopNav({ onMenuClick }: TopNavProps) {
             <SidebarNav className="flex" />
           </SheetContent>
         </Sheet>
-        <span className="font-bold tracking-tight">LearnDepth DSA</span>
+        <img src="/logo.png" alt="CodeDepth" className="h-10 w-auto object-contain" />
       </div>
 
       <div className="hidden md:flex flex-1 items-center gap-4">

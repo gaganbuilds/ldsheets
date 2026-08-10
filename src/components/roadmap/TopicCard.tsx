@@ -1,45 +1,99 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Topic } from '@/types';
-import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
+import { Topic, Problem, UserProgress, UserNote } from '@/types';
+import { ChevronRight, ChevronDown } from 'lucide-react';
+import { ProblemRow } from './ProblemRow';
+import { cn } from '@/lib/utils';
+
 
 interface TopicCardProps {
   topic: Topic;
   totalProblems: number;
   completedProblems: number;
+  problems: Problem[];
+  progress: UserProgress[];
+  notes: UserNote[];
+  userId: string;
+  onProgressChange: (progress: UserProgress) => void;
 }
 
-export function TopicCard({ topic, totalProblems, completedProblems }: TopicCardProps) {
+export function TopicCard({ 
+  topic, 
+  totalProblems, 
+  completedProblems,
+  problems,
+  progress,
+  notes,
+  userId,
+  onProgressChange
+}: TopicCardProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const percentage = totalProblems > 0 ? Math.round((completedProblems / totalProblems) * 100) : 0;
 
   return (
-    <Link href={`/roadmap/${topic.slug}`} className="block group">
-      <Card className="transition-all hover:border-primary/50 hover:shadow-md">
-        <CardContent className="p-5 flex items-center justify-between gap-4">
-          <div className="flex-1 space-y-2 w-full min-w-0">
-            <h3 className="font-semibold text-lg truncate group-hover:text-primary transition-colors">{topic.title}</h3>
-            {topic.description && (
-              <p className="text-sm text-muted-foreground line-clamp-1">{topic.description}</p>
+    <div className="flex flex-col gap-2 mb-6">
+      <div className="space-y-1 mb-2 px-1">
+        <h2 className="text-xl font-bold tracking-tight text-white">{topic.title}</h2>
+        {topic.description && (
+          <p className="text-sm text-muted-foreground">{topic.description}</p>
+        )}
+      </div>
+
+      <Card 
+        className={cn(
+          "transition-all overflow-hidden border-[#2A2A2A] bg-[#0A0A0A]", 
+          isExpanded ? "border-l-2 border-l-green-500" : ""
+        )}
+      >
+        {/* Header (Click to expand) */}
+        <div 
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="p-4 sm:p-5 flex items-center justify-between gap-4 cursor-pointer hover:bg-white/[0.02] transition-colors group"
+        >
+          <div className="flex items-center gap-3">
+            {isExpanded ? (
+              <ChevronDown className="h-5 w-5 text-green-500" />
+            ) : (
+              <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-white" />
             )}
-            
-            <div className="flex items-center gap-3 pt-1">
-              <div className="h-1.5 flex-1 max-w-[200px] bg-secondary rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-primary transition-all duration-500 ease-in-out" 
-                  style={{ width: `${percentage}%` }}
-                />
-              </div>
-              <span className="text-xs font-medium text-muted-foreground">{percentage}% Complete</span>
-              <span className="text-xs text-muted-foreground ml-2 hidden sm:inline-block">• {totalProblems} Problems</span>
-            </div>
+            <h3 className="font-semibold text-base sm:text-lg text-white/90">{topic.title} Problems</h3>
           </div>
           
-          <div className="shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-muted group-hover:bg-primary/10 transition-colors">
-            <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-medium text-muted-foreground">{completedProblems}/{totalProblems}</span>
+            <div className="h-1.5 w-16 sm:w-24 bg-secondary rounded-full overflow-hidden hidden sm:block">
+              <div 
+                className="h-full bg-green-500 transition-all duration-500 ease-in-out" 
+                style={{ width: `${percentage}%` }}
+              />
+            </div>
           </div>
-        </CardContent>
+        </div>
+
+        {/* Collapsible Content */}
+        {isExpanded && (
+          <div className="px-4 pb-4 animate-in slide-in-from-top-2">
+            <div className="flex flex-col gap-2">
+              {problems.length > 0 ? (
+                problems.map((problem) => (
+                  <ProblemRow 
+                    key={problem.id}
+                    problem={problem}
+                    userId={userId}
+                    initialProgress={progress.find(p => p.problemId === problem.id)}
+                    initialNote={notes.find(n => n.problemId === problem.id)}
+                    onProgressChange={onProgressChange}
+                  />
+                ))
+              ) : (
+                <div className="p-4 text-center text-muted-foreground text-sm border border-white/5 rounded-lg bg-[#141414]">
+                  No problems match your current filters in this topic.
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </Card>
-    </Link>
+    </div>
   );
 }

@@ -46,10 +46,9 @@ export function SidebarNav({ className, ...props }: SidebarProps) {
 
   return (
     <div className={cn("flex flex-col h-full bg-background border-r", className)} {...props}>
-      <div className="p-6 hidden md:block">
-        <span className="font-bold tracking-tight text-xl">
-          LearnDepth {isAdminView ? "Admin" : "DSA"}
-        </span>
+      <div className="p-6 hidden md:flex items-center gap-2">
+        <img src="/logo.png" alt="CodeDepth" className="h-12 w-auto object-contain" />
+        {isAdminView && <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Admin</span>}
       </div>
       <nav className="flex-1 px-4 space-y-1 mt-4 md:mt-0 overflow-y-auto">
         {navigation.map((item) => {

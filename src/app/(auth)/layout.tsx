@@ -1,7 +1,7 @@
 import { PublicRoute } from "@/components/auth/PublicRoute";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
-import { Code2Icon } from "lucide-react";
+
 
 export default function AuthLayout({
   children,
@@ -13,12 +13,7 @@ export default function AuthLayout({
       <div className="flex min-h-screen flex-col">
         <header className="flex h-16 items-center justify-between border-b px-6 lg:px-12">
           <Link href="/" className="flex items-center gap-2 font-bold hover:opacity-80 transition-opacity">
-            <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Code2Icon className="size-5" />
-            </div>
-            <span className="text-xl tracking-tight hidden sm:inline-block">
-              LearnDepth
-            </span>
+            <img src="/logo.png" alt="CodeDepth" className="h-12 w-auto object-contain" />
           </Link>
           <div className="flex items-center gap-4">
             <ThemeToggle />

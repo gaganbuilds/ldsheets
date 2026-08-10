@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Problem, UserProgress, UserNote } from '@/types';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, Clock, Check, X, FileText, Loader2, Save } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { markProblemComplete, markProblemIncomplete } from '@/lib/firebase/progress';
 import { saveProblemNote } from '@/lib/firebase/notes';
+import { Bookmark, Code, FileText, PlaySquare, ExternalLink, Loader2, Save, Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface ProblemRowProps {
   problem: Problem;
@@ -135,95 +135,123 @@ export function ProblemRow({ problem, userId, initialProgress, initialNote, onPr
   };
 
   const difficultyColors = {
-    Easy: 'text-green-500 bg-green-500/10 border-green-500/20',
-    Medium: 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20',
-    Hard: 'text-red-500 bg-red-500/10 border-red-500/20',
+    Easy: 'text-green-500',
+    Medium: 'text-orange-500',
+    Hard: 'text-red-500',
+  };
+
+  const getPlatformIcon = (platform: string) => {
+    // Basic mapping, fallback to Code icon
+    const p = platform.toLowerCase();
+    return <Code className="h-4 w-4" />;
   };
 
   return (
-    <div className={cn("flex flex-col bg-card border rounded-lg transition-all hover:border-primary/30 hover:shadow-sm", isCompleted && "bg-muted/10")}>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 gap-4">
-        <div className="flex items-start sm:items-center gap-4 flex-1 min-w-0">
-          
+    <div className={cn("flex flex-col bg-[#141414] border border-white/5 rounded-lg transition-all hover:bg-white/[0.02]", isCompleted && "opacity-60")}>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 gap-3 sm:gap-4">
+        {/* LEFT/TOP: Checkbox + Title + Companies */}
+        <div className="flex items-start sm:items-center gap-3 sm:gap-4 flex-1 min-w-0">
           <button 
             onClick={handleToggleComplete}
             disabled={isUpdatingProgress}
             className={cn(
-              "shrink-0 mt-1 sm:mt-0 flex items-center justify-center h-6 w-6 rounded-md border transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
-              isCompleted ? "bg-primary border-primary text-primary-foreground" : "bg-transparent border-input hover:bg-accent hover:text-accent-foreground",
+              "shrink-0 flex items-center justify-center h-5 w-5 sm:h-5 sm:w-5 mt-0.5 sm:mt-0 rounded-sm border transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+              isCompleted ? "bg-green-500/20 border-green-500 text-green-500" : "bg-transparent border-white/20 hover:border-white/40",
               isUpdatingProgress && "opacity-50 cursor-not-allowed"
             )}
             aria-label={isCompleted ? "Mark as incomplete" : "Mark as complete"}
           >
             {isUpdatingProgress ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
             ) : isCompleted ? (
-              <Check className="h-4 w-4" />
+              <Check className="h-3.5 w-3.5" strokeWidth={3} />
             ) : null}
           </button>
 
-          <div className="flex-1 min-w-0 space-y-1.5">
-            <div className="flex items-center gap-3 flex-wrap">
-              <h4 className={cn("font-medium text-base truncate", isCompleted && "text-muted-foreground line-through")}>
-                {problem.title}
-              </h4>
-              <span className={cn(
-                "px-2 py-0.5 text-xs font-medium rounded-full border", 
-                difficultyColors[problem.difficulty]
-              )}>
-                {problem.difficulty}
-              </span>
-              {problem.platform && (
-                <span className="px-2 py-0.5 text-xs bg-muted text-muted-foreground rounded-full">
-                  {problem.platform}
-                </span>
-              )}
-            </div>
+          <div className="flex-1 min-w-0 flex flex-col justify-center">
+            <h4 className={cn("font-semibold text-base tracking-tight truncate text-white", isCompleted && "line-through text-white/50")}>
+              {problem.title}
+            </h4>
             
-            <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
-              {problem.estimatedTime > 0 && (
-                <span className="flex items-center gap-1">
-                  <Clock className="h-3 w-3" /> {problem.estimatedTime} min
-                </span>
-              )}
-              {problem.tags && problem.tags.length > 0 && (
-                <div className="flex items-center gap-1 flex-wrap">
-                  {problem.tags.slice(0, 3).map(tag => (
-                    <span key={tag} className="opacity-80">#{tag}</span>
-                  ))}
-                  {problem.tags.length > 3 && <span className="opacity-80">+{problem.tags.length - 3}</span>}
-                </div>
-              )}
-            </div>
+            {problem.companies && problem.companies.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5 mt-1 sm:mt-0.5">
+                {problem.companies.slice(0, 3).map((company, i) => (
+                  <span key={i} className="flex items-center text-xs px-2 py-0.5 rounded-full bg-white/5 text-white/60 whitespace-nowrap">
+                    {company}
+                  </span>
+                ))}
+                {problem.companies.length > 3 && (
+                  <span className="text-[11px] text-white/40">+{problem.companies.length - 3}</span>
+                )}
+              </div>
+            )}
           </div>
         </div>
         
-        <div className="shrink-0 flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-          <Button 
-            variant="ghost" 
-            size="sm"
-            onClick={() => setIsNotesOpen(!isNotesOpen)}
-            className={cn("flex-1 sm:flex-none", note?.content ? "text-primary" : "text-muted-foreground")}
-          >
-            <FileText className="mr-2 h-4 w-4" />
-            {note?.content ? 'Edit Notes' : 'Add Notes'}
-          </Button>
+        {/* BOTTOM/RIGHT: Difficulty + Actions */}
+        <div className="flex items-center justify-between sm:justify-end gap-2 ml-8 sm:ml-0 mt-1 sm:mt-0">
+          {/* Difficulty */}
+          <div className="flex sm:w-24 sm:justify-center shrink-0">
+            <span className={cn(
+              "text-sm font-medium", 
+              difficultyColors[problem.difficulty]
+            )}>
+              {problem.difficulty}
+            </span>
+          </div>
 
-          {problem.externalURL ? (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="flex-1 sm:flex-none w-full sm:w-auto hover:bg-primary hover:text-primary-foreground"
-              nativeButton={false}
-              render={<a href={problem.externalURL} target="_blank" rel="noopener noreferrer" />}
+          {/* Actions */}
+          <div className="shrink-0 flex items-center justify-end gap-0.5 sm:gap-1">
+            {problem.platform && (
+              <div className="p-1.5 sm:p-2 text-green-500/70" title={problem.platform}>
+                {getPlatformIcon(problem.platform)}
+              </div>
+            )}
+            
+            {problem.videoURL && (
+              <a 
+                href={problem.videoURL} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-1.5 sm:p-2 text-red-500/80 hover:text-red-500 transition-colors"
+                title="Video Solution"
+              >
+                <PlaySquare className="h-4 w-4" />
+              </a>
+            )}
+
+            <button 
+              onClick={() => setIsNotesOpen(!isNotesOpen)}
+              className={cn("p-1.5 sm:p-2 transition-colors", note?.content ? "text-primary" : "text-white/40 hover:text-white/80")}
+              title={note?.content ? 'Edit Notes' : 'Add Notes'}
             >
-              Solve Problem <ExternalLink className="ml-2 h-3.5 w-3.5" />
-            </Button>
-          ) : (
-            <Button variant="ghost" size="sm" disabled className="flex-1 sm:flex-none w-full sm:w-auto text-muted-foreground">
-              Unavailable
-            </Button>
-          )}
+              <FileText className="h-4 w-4" />
+            </button>
+
+            {problem.externalURL ? (
+              <a 
+                href={problem.externalURL} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-1.5 sm:p-2 text-orange-500/80 hover:text-orange-500 transition-colors"
+                title="Solve Problem"
+              >
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            ) : (
+              <button disabled className="p-1.5 sm:p-2 text-white/20">
+                <ExternalLink className="h-4 w-4" />
+              </button>
+            )}
+
+            <button 
+              className="p-1.5 sm:p-2 text-white/40 hover:text-white/80 transition-colors"
+              title="Bookmark"
+              onClick={() => toast.info("Bookmark feature coming soon!")}
+            >
+              <Bookmark className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </div>
 

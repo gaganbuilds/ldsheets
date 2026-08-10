@@ -206,7 +206,7 @@ export default function AdminTopicsPage() {
 
       {/* Create/Edit Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent>
+        <DialogContent className="w-[95vw] sm:w-full max-w-lg overflow-y-auto max-h-[90vh]">
           <form onSubmit={handleSubmit}>
             <DialogHeader>
               <DialogTitle>{currentTopic.id ? 'Edit Topic' : 'Create Topic'}</DialogTitle>

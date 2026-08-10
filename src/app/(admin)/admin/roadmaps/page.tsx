@@ -194,7 +194,7 @@ export default function AdminRoadmapsPage() {
 
       {/* Create/Edit Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent>
+        <DialogContent className="w-[95vw] sm:w-full max-w-lg overflow-y-auto max-h-[90vh]">
           <form onSubmit={handleSubmit}>
             <DialogHeader>
               <DialogTitle>{currentRoadmap.id ? 'Edit Roadmap' : 'Create Roadmap'}</DialogTitle>

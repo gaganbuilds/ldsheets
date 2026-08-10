@@ -173,7 +173,7 @@ export default function TopicDetailPage() {
       </div>
 
       {/* Filters and Search */}
-      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-muted/20 p-2 rounded-lg">
+      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-muted/20 p-2 rounded-lg min-w-0">
         <div className="relative w-full sm:w-72">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input 
@@ -220,7 +220,7 @@ export default function TopicDetailPage() {
             description={searchQuery || difficultyFilter !== 'All' 
               ? "No problems match your current filters. Try adjusting your search."
               : "There are currently no problems added to this topic."}
-            className="min-h-[250px]"
+            className="min-h-[150px] sm:min-h-[200px] lg:min-h-[250px]"
             action={(searchQuery || difficultyFilter !== 'All') && (
               <Button 
                 variant="outline" 

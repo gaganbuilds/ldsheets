@@ -6,12 +6,15 @@ import { getRoadmaps } from '@/lib/firebase/roadmaps';
 import { getTopics } from '@/lib/firebase/topics';
 import { getProblems } from '@/lib/firebase/problems';
 import { getUserRoadmapProgress } from '@/lib/firebase/progress';
-import { Roadmap, Topic, Problem, UserProgress } from '@/types';
+import { getProblemNotes } from '@/lib/firebase/notes';
+import { Roadmap, Topic, Problem, UserProgress, UserNote } from '@/types';
 import { SectionHeader } from '@/components/ui-custom/SectionHeader';
 import { EmptyState } from '@/components/ui-custom/EmptyState';
 import { TopicCard } from '@/components/roadmap/TopicCard';
+import { RightSidebar } from '@/components/roadmap/RightSidebar';
 import { Button } from '@/components/ui/button';
-import { Activity, Target } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Activity, Target, Search } from 'lucide-react';
 import Link from 'next/link';
 
 export default function RoadmapPage() {
@@ -21,8 +24,12 @@ export default function RoadmapPage() {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [problems, setProblems] = useState<Problem[]>([]);
   const [progress, setProgress] = useState<UserProgress[]>([]);
+  const [notes, setNotes] = useState<UserNote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [difficultyFilter, setDifficultyFilter] = useState<'All' | 'Easy' | 'Medium' | 'Hard'>('All');
 
   useEffect(() => {
     async function fetchData() {
@@ -46,8 +53,13 @@ export default function RoadmapPage() {
           setProblems(allProblems.filter(p => p.isActive && p.roadmapId === dsaRoadmap.id));
           
           if (profile?.uid) {
-            const userProgress = await getUserRoadmapProgress(profile.uid, dsaRoadmap.id);
+            const activeProblemsList = allProblems.filter(p => p.isActive && p.roadmapId === dsaRoadmap.id);
+            const [userProgress, userNotes] = await Promise.all([
+              getUserRoadmapProgress(profile.uid, dsaRoadmap.id),
+              getProblemNotes(profile.uid, activeProblemsList.map(p => p.id))
+            ]);
             setProgress(userProgress);
+            setNotes(userNotes);
           }
         }
       } catch (err) {
@@ -100,47 +112,97 @@ export default function RoadmapPage() {
   const totalProblemsCount = problems.length;
   const overallProgress = totalProblemsCount > 0 ? Math.round((completedProblemsCount / totalProblemsCount) * 100) : 0;
 
+  const handleProgressChange = (updatedProgress: UserProgress) => {
+    setProgress(prev => {
+      const exists = prev.find(p => p.id === updatedProgress.id);
+      if (exists) {
+        return prev.map(p => p.id === updatedProgress.id ? updatedProgress : p);
+      }
+      return [...prev, updatedProgress];
+    });
+  };
+
+  const filteredProblems = problems.filter(problem => {
+    if (difficultyFilter !== 'All' && problem.difficulty !== difficultyFilter) return false;
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const matchesTitle = problem.title.toLowerCase().includes(query);
+      const matchesTags = problem.tags?.some(tag => tag.toLowerCase().includes(query));
+      if (!matchesTitle && !matchesTags) return false;
+    }
+    return true;
+  });
+
   return (
-    <div className="space-y-8 pb-10 max-w-4xl mx-auto">
+    <div className="flex flex-col xl:flex-row gap-6 lg:gap-10 pb-10 w-full max-w-[1600px] px-2 sm:px-4 lg:px-8">
+      {/* Main Content Area */}
+      <div className="flex-1 space-y-8 min-w-0">
+        {/* Search and Filters */}
+      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between mb-8">
+        <div className="relative w-full sm:w-96">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input 
+            placeholder="Search problems..." 
+            className="pl-9 w-full bg-background border-[#2A2A2A] focus-visible:ring-1 focus-visible:ring-primary text-sm"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="flex bg-[#141414] rounded-md border border-[#2A2A2A] p-1 w-full sm:w-auto overflow-x-auto">
+            {(['All', 'Easy', 'Medium', 'Hard'] as const).map((diff) => (
+              <button
+                key={diff}
+                onClick={() => setDifficultyFilter(diff)}
+                className={`px-4 py-1.5 text-[13px] font-medium rounded-sm whitespace-nowrap transition-colors ${
+                  difficultyFilter === diff 
+                    ? 'bg-[#2A2A2A] text-white shadow-sm' 
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {diff === 'All' ? 'Difficulty' : diff}
+              </button>
+            ))}
+          </div>
+          <div className="hidden sm:flex bg-[#141414] rounded-md border border-[#2A2A2A] p-1">
+             <button className="px-4 py-1.5 text-[13px] font-medium rounded-sm whitespace-nowrap text-muted-foreground hover:text-foreground transition-colors">
+               Topic
+             </button>
+          </div>
+        </div>
+      </div>
+
       <SectionHeader 
         title={roadmap.title}
         description={roadmap.description}
       />
-      
-      <div className="bg-card border rounded-xl p-6 shadow-sm flex flex-col md:flex-row items-center gap-6 justify-between">
-        <div className="flex-1 space-y-2 text-center md:text-left w-full">
-          <h3 className="font-semibold text-lg tracking-tight">Overall Progress</h3>
-          <p className="text-sm text-muted-foreground">
-            {completedProblemsCount} of {totalProblemsCount} problems completed
-          </p>
-        </div>
-        
-        <div className="w-full md:w-1/2 flex items-center gap-4">
-          <div className="h-3 flex-1 bg-secondary rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-primary transition-all duration-500 ease-in-out" 
-              style={{ width: `${overallProgress}%` }}
-            />
-          </div>
-          <span className="font-bold text-lg">{overallProgress}%</span>
-        </div>
-      </div>
 
       <div className="space-y-6">
-        <h3 className="text-xl font-semibold tracking-tight">Topics ({topics.length})</h3>
+        <h3 className="text-xl font-semibold tracking-tight text-white/90">Topics ({topics.length})</h3>
         
         {topics.length > 0 ? (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col">
             {topics.map(topic => {
-              const topicProblems = problems.filter(p => p.topicId === topic.id);
+              const allTopicProblems = problems.filter(p => p.topicId === topic.id);
+              const topicFilteredProblems = filteredProblems.filter(p => p.topicId === topic.id);
               const completedInTopic = progress.filter(p => p.topicId === topic.id && p.completed).length; 
               
+              if (topicFilteredProblems.length === 0 && (searchQuery || difficultyFilter !== 'All')) {
+                return null;
+              }
+
               return (
                 <TopicCard 
                   key={topic.id}
                   topic={topic}
-                  totalProblems={topicProblems.length}
+                  totalProblems={allTopicProblems.length}
                   completedProblems={completedInTopic}
+                  problems={topicFilteredProblems}
+                  progress={progress}
+                  notes={notes}
+                  userId={profile?.uid || ''}
+                  onProgressChange={handleProgressChange}
                 />
               );
             })}
@@ -149,9 +211,15 @@ export default function RoadmapPage() {
           <EmptyState 
             title="No Topics Available"
             description="There are currently no active topics in this roadmap."
-            className="min-h-[250px]"
+            className="min-h-[150px] sm:min-h-[200px] lg:min-h-[250px]"
           />
         )}
+      </div>
+      </div>
+
+      {/* Right Sidebar Area */}
+      <div className="w-full xl:w-[320px] shrink-0">
+        <RightSidebar problems={problems} progress={progress} />
       </div>
     </div>
   );
