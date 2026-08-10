@@ -63,7 +63,7 @@ export function ActivityHeatmap({ activity, currentStreak, longestStreak }: Acti
       case 1: return 'bg-primary/30';
       case 2: return 'bg-primary/60';
       case 3: return 'bg-primary';
-      default: return 'bg-muted/60 dark:bg-muted/40';
+      default: return 'bg-muted dark:bg-muted/40';
     }
   };
 

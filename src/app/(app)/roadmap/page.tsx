@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Activity, Target, Search } from 'lucide-react';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 export default function RoadmapPage() {
   const { profile } = useAuth();
@@ -143,29 +144,30 @@ export default function RoadmapPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input 
             placeholder="Search problems..." 
-            className="pl-9 w-full bg-background border-[#2A2A2A] focus-visible:ring-1 focus-visible:ring-primary text-sm"
+            className="pl-9 w-full bg-background border-border focus-visible:ring-1 focus-visible:ring-primary text-sm"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
         
         <div className="flex items-center gap-3 w-full sm:w-auto">
-          <div className="flex bg-[#141414] rounded-md border border-[#2A2A2A] p-1 w-full sm:w-auto overflow-x-auto">
+          <div className="flex bg-muted rounded-md border border-border/50 p-1 w-full sm:w-auto overflow-x-auto">
             {(['All', 'Easy', 'Medium', 'Hard'] as const).map((diff) => (
               <button
                 key={diff}
                 onClick={() => setDifficultyFilter(diff)}
-                className={`px-4 py-1.5 text-[13px] font-medium rounded-sm whitespace-nowrap transition-colors ${
+                className={cn(
+                  "flex-1 sm:flex-none px-3 py-1.5 text-xs font-medium rounded-sm transition-all whitespace-nowrap text-center",
                   difficultyFilter === diff 
-                    ? 'bg-[#2A2A2A] text-white shadow-sm' 
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
+                    ? 'bg-background text-foreground shadow-sm' 
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted-foreground/10'
+                )}
               >
                 {diff === 'All' ? 'Difficulty' : diff}
               </button>
             ))}
           </div>
-          <div className="hidden sm:flex bg-[#141414] rounded-md border border-[#2A2A2A] p-1">
+          <div className="hidden sm:flex bg-muted rounded-md border border-border/50 p-1">
              <button className="px-4 py-1.5 text-[13px] font-medium rounded-sm whitespace-nowrap text-muted-foreground hover:text-foreground transition-colors">
                Topic
              </button>
@@ -179,7 +181,7 @@ export default function RoadmapPage() {
       />
 
       <div className="space-y-6">
-        <h3 className="text-xl font-semibold tracking-tight text-white/90">Topics ({topics.length})</h3>
+        <h3 className="text-xl font-semibold tracking-tight text-foreground/90">Topics ({topics.length})</h3>
         
         {topics.length > 0 ? (
           <div className="flex flex-col">

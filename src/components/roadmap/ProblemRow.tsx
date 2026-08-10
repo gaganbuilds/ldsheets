@@ -147,7 +147,7 @@ export function ProblemRow({ problem, userId, initialProgress, initialNote, onPr
   };
 
   return (
-    <div className={cn("flex flex-col bg-[#141414] border border-white/5 rounded-lg transition-all hover:bg-white/[0.02]", isCompleted && "opacity-60")}>
+    <div className={cn("flex flex-col bg-card border border-border/50 rounded-lg transition-all hover:bg-muted/30", isCompleted && "opacity-60")}>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 gap-3 sm:gap-4">
         {/* LEFT/TOP: Checkbox + Title + Companies */}
         <div className="flex items-start sm:items-center gap-3 sm:gap-4 flex-1 min-w-0">
@@ -156,7 +156,7 @@ export function ProblemRow({ problem, userId, initialProgress, initialNote, onPr
             disabled={isUpdatingProgress}
             className={cn(
               "shrink-0 flex items-center justify-center h-5 w-5 sm:h-5 sm:w-5 mt-0.5 sm:mt-0 rounded-sm border transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
-              isCompleted ? "bg-green-500/20 border-green-500 text-green-500" : "bg-transparent border-white/20 hover:border-white/40",
+              isCompleted ? "bg-green-500/20 border-green-500 text-green-500" : "bg-transparent border-border hover:border-foreground/40",
               isUpdatingProgress && "opacity-50 cursor-not-allowed"
             )}
             aria-label={isCompleted ? "Mark as incomplete" : "Mark as complete"}
@@ -169,19 +169,19 @@ export function ProblemRow({ problem, userId, initialProgress, initialNote, onPr
           </button>
 
           <div className="flex-1 min-w-0 flex flex-col justify-center">
-            <h4 className={cn("font-semibold text-base tracking-tight truncate text-white", isCompleted && "line-through text-white/50")}>
+            <h4 className={cn("font-semibold text-base tracking-tight truncate text-foreground", isCompleted && "line-through text-muted-foreground/80")}>
               {problem.title}
             </h4>
             
             {problem.companies && problem.companies.length > 0 && (
               <div className="flex flex-wrap items-center gap-1.5 mt-1 sm:mt-0.5">
                 {problem.companies.slice(0, 3).map((company, i) => (
-                  <span key={i} className="flex items-center text-xs px-2 py-0.5 rounded-full bg-white/5 text-white/60 whitespace-nowrap">
+                  <span key={i} className="flex items-center text-xs px-2 py-0.5 rounded-full bg-muted border border-border/50 text-muted-foreground whitespace-nowrap">
                     {company}
                   </span>
                 ))}
                 {problem.companies.length > 3 && (
-                  <span className="text-[11px] text-white/40">+{problem.companies.length - 3}</span>
+                  <span className="text-[11px] text-muted-foreground/70">+{problem.companies.length - 3}</span>
                 )}
               </div>
             )}
@@ -222,7 +222,7 @@ export function ProblemRow({ problem, userId, initialProgress, initialNote, onPr
 
             <button 
               onClick={() => setIsNotesOpen(!isNotesOpen)}
-              className={cn("p-1.5 sm:p-2 transition-colors", note?.content ? "text-primary" : "text-white/40 hover:text-white/80")}
+              className={cn("p-1.5 sm:p-2 transition-colors", note?.content ? "text-primary" : "text-muted-foreground hover:text-foreground/80")}
               title={note?.content ? 'Edit Notes' : 'Add Notes'}
             >
               <FileText className="h-4 w-4" />
@@ -239,13 +239,13 @@ export function ProblemRow({ problem, userId, initialProgress, initialNote, onPr
                 <ExternalLink className="h-4 w-4" />
               </a>
             ) : (
-              <button disabled className="p-1.5 sm:p-2 text-white/20">
+              <button disabled className="p-1.5 sm:p-2 text-muted-foreground/30">
                 <ExternalLink className="h-4 w-4" />
               </button>
             )}
 
             <button 
-              className="p-1.5 sm:p-2 text-white/40 hover:text-white/80 transition-colors"
+              className="p-1.5 sm:p-2 text-muted-foreground hover:text-foreground/80 transition-colors"
               title="Bookmark"
               onClick={() => toast.info("Bookmark feature coming soon!")}
             >

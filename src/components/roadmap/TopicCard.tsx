@@ -33,7 +33,7 @@ export function TopicCard({
   return (
     <div className="flex flex-col gap-2 mb-6">
       <div className="space-y-1 mb-2 px-1">
-        <h2 className="text-xl font-bold tracking-tight text-white">{topic.title}</h2>
+        <h2 className="text-xl font-bold tracking-tight text-foreground">{topic.title}</h2>
         {topic.description && (
           <p className="text-sm text-muted-foreground">{topic.description}</p>
         )}
@@ -41,22 +41,22 @@ export function TopicCard({
 
       <Card 
         className={cn(
-          "transition-all overflow-hidden border-[#2A2A2A] bg-[#0A0A0A]", 
+          "transition-all overflow-hidden border-border bg-card", 
           isExpanded ? "border-l-2 border-l-green-500" : ""
         )}
       >
         {/* Header (Click to expand) */}
         <div 
           onClick={() => setIsExpanded(!isExpanded)}
-          className="p-4 sm:p-5 flex items-center justify-between gap-4 cursor-pointer hover:bg-white/[0.02] transition-colors group"
+          className="p-4 sm:p-5 flex items-center justify-between gap-4 cursor-pointer hover:bg-muted/50 transition-colors group"
         >
           <div className="flex items-center gap-3">
             {isExpanded ? (
               <ChevronDown className="h-5 w-5 text-green-500" />
             ) : (
-              <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-white" />
+              <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground" />
             )}
-            <h3 className="font-semibold text-base sm:text-lg text-white/90">{topic.title} Problems</h3>
+            <h3 className="font-semibold text-base sm:text-lg text-foreground/90">{topic.title} Problems</h3>
           </div>
           
           <div className="flex items-center gap-3">
@@ -86,7 +86,7 @@ export function TopicCard({
                   />
                 ))
               ) : (
-                <div className="p-4 text-center text-muted-foreground text-sm border border-white/5 rounded-lg bg-[#141414]">
+                <div className="p-4 text-center text-muted-foreground text-sm border border-border/50 rounded-lg bg-muted">
                   No problems match your current filters in this topic.
                 </div>
               )}

@@ -9,9 +9,9 @@ export default function Home() {
   const { user, loading } = useAuth();
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-foreground flex flex-col font-sans selection:bg-primary/30">
+    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-primary/30">
       {/* Navbar */}
-      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#0A0A0A]/80 backdrop-blur-md">
+      <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
         <div className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between max-w-7xl">
           <div className="flex items-center gap-2">
             <img src="/logo.png" alt="CodeDepth" className="h-12 w-auto object-contain" />
@@ -26,7 +26,7 @@ export default function Home() {
               </Button>
             ) : (
               <>
-                <Button render={<Link href="/login" />} variant="ghost" size="sm" className="hidden sm:flex text-muted-foreground hover:text-white">
+                <Button render={<Link href="/login" />} variant="ghost" size="sm" className="hidden sm:flex text-muted-foreground hover:text-foreground">
                   Sign In
                 </Button>
                 <Button render={<Link href="/signup" />} variant="default" size="sm" className="rounded-full font-semibold px-6">
@@ -50,7 +50,7 @@ export default function Home() {
                 Beta v0.1 Available Now
               </div>
               
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-6 text-white leading-[1.1]">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-6 text-foreground leading-[1.1]">
                 MASTER DSA. <br />
                 BUILD YOUR <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">PROBLEM-SOLVING</span>
@@ -65,7 +65,7 @@ export default function Home() {
                 <Button render={<Link href="/signup" />} size="lg" className="rounded-full font-semibold px-8 h-12 shadow-[0_0_20px_rgba(var(--primary),0.3)] hover:shadow-[0_0_30px_rgba(var(--primary),0.5)] transition-shadow">
                   Start Learning Free
                 </Button>
-                <Button render={<Link href="/login" />} size="lg" variant="outline" className="rounded-full font-semibold px-8 h-12 border-white/10 hover:bg-white/5">
+                <Button render={<Link href="/login" />} size="lg" variant="outline" className="rounded-full font-semibold px-8 h-12 border-border hover:bg-muted">
                   Explore CodeDepth
                 </Button>
               </div>
@@ -75,16 +75,16 @@ export default function Home() {
             <div className="lg:col-span-7 relative w-full mt-8 lg:mt-0">
               <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-blue-500/10 blur-[100px] -z-10 rounded-full" />
               
-              <div className="relative rounded-xl border border-white/10 bg-[#121212]/90 backdrop-blur-xl shadow-2xl overflow-hidden">
+              <div className="relative rounded-xl border border-border bg-card/90 backdrop-blur-xl shadow-2xl overflow-hidden">
                 {/* Editor Header */}
-                <div className="flex items-center px-4 py-3 border-b border-white/10 bg-[#0A0A0A]">
+                <div className="flex items-center px-4 py-3 border-b border-border bg-muted/50">
                   <div className="flex gap-2 mr-4">
                     <div className="w-3 h-3 rounded-full bg-red-500/80" />
                     <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
                     <div className="w-3 h-3 rounded-full bg-green-500/80" />
                   </div>
                   <div className="flex-1 flex justify-center">
-                    <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground bg-white/5 px-3 py-1 rounded-md">
+                    <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground bg-muted px-3 py-1 rounded-md">
                       <Terminal className="w-3 h-3" />
                       TwoSum.cpp
                     </div>
@@ -125,20 +125,20 @@ export default function Home() {
               </div>
 
               {/* Floating Element 1 */}
-              <div className="absolute -bottom-6 -left-6 md:-left-12 bg-[#121212] border border-white/10 rounded-lg p-4 shadow-xl backdrop-blur-md hidden sm:flex items-center gap-4 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
+              <div className="absolute -bottom-6 -left-6 md:-left-12 bg-card border border-border rounded-lg p-4 shadow-xl backdrop-blur-md hidden sm:flex items-center gap-4 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
                 <div className="bg-green-500/20 p-2 rounded-full">
-                  <Cpu className="w-6 h-6 text-green-400" />
+                  <Cpu className="w-6 h-6 text-green-500 dark:text-green-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-white">Accepted</p>
+                  <p className="text-sm font-semibold text-foreground">Accepted</p>
                   <p className="text-xs text-muted-foreground">Runtime: 0 ms</p>
                 </div>
               </div>
 
               {/* Floating Element 2 */}
-              <div className="absolute -top-6 -right-6 md:-right-8 bg-[#121212] border border-white/10 rounded-lg p-4 shadow-xl backdrop-blur-md hidden sm:block animate-in fade-in slide-in-from-top-8 duration-1000 delay-500">
+              <div className="absolute -top-6 -right-6 md:-right-8 bg-card border border-border rounded-lg p-4 shadow-xl backdrop-blur-md hidden sm:block animate-in fade-in slide-in-from-top-8 duration-1000 delay-500">
                 <p className="text-xs font-semibold text-primary mb-1">XP Gained</p>
-                <p className="text-2xl font-bold text-white">+50 XP</p>
+                <p className="text-2xl font-bold text-foreground">+50 XP</p>
               </div>
             </div>
             
