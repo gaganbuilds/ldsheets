@@ -14,9 +14,9 @@ export function TopicProgressCard({ topic, totalProblems, completedProblems }: T
   return (
     <Card>
       <CardContent className="p-3 sm:p-4 flex flex-col gap-2 sm:gap-3">
-        <div className="flex justify-between items-start">
-          <div className="font-semibold">{topic.title}</div>
-          <div className="text-sm text-muted-foreground">{percentage}%</div>
+        <div className="flex justify-between items-start gap-2">
+          <div className="font-semibold flex-1 min-w-0 truncate">{topic.title}</div>
+          <div className="text-sm text-muted-foreground shrink-0">{percentage}%</div>
         </div>
         
         <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">

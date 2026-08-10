@@ -45,7 +45,7 @@ export function BadgeCard({ badge, userBadge }: BadgeCardProps) {
           </p>
         </div>
         
-        <div className="w-full pt-4 border-t border-border flex justify-between items-center text-xs text-muted-foreground">
+        <div className="w-full pt-4 border-t border-border flex flex-wrap justify-between items-center gap-2 text-xs text-muted-foreground">
           <span>{badge.xpReward} XP</span>
           {isUnlocked ? (
             <span className="text-primary font-medium">Earned {new Date(userBadge.unlockedAt).toLocaleDateString()}</span>

@@ -70,7 +70,7 @@ export function ActivityHeatmap({ activity, currentStreak, longestStreak }: Acti
   return (
     <Card className="flex flex-col h-full">
       <CardHeader className="pb-4 border-b">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-start sm:items-center justify-between gap-4">
           <div>
             <CardTitle className="text-lg">Consistency</CardTitle>
             <CardDescription>Your daily problem solving activity</CardDescription>
@@ -99,9 +99,12 @@ export function ActivityHeatmap({ activity, currentStreak, longestStreak }: Acti
             <span>Wed</span>
             <span>Fri</span>
           </div>
-          <div className="flex justify-start gap-[4px] min-w-max">
+          <div className="flex justify-start gap-[4px]">
             {weeks.map((week, weekIndex) => (
-              <div key={`week-${weekIndex}`} className="flex flex-col gap-[4px]">
+              <div 
+                key={`week-${weekIndex}`} 
+                className={`flex-col gap-[4px] ${weekIndex < 32 ? 'hidden sm:flex' : 'flex'}`}
+              >
                 {week.map((day, dayIndex) => (
                   <div
                     key={`day-${weekIndex}-${dayIndex}`}
