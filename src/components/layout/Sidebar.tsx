@@ -26,7 +26,6 @@ const studentNavigation = [
   { name: "Analytics", href: "/analytics", icon: BarChart2 },
   { name: "Leaderboard", href: "/leaderboard", icon: Trophy },
   { name: "Profile", href: "/profile", icon: User },
-  { name: "Settings", href: "/settings", icon: Settings },
 ];
 
 const adminNavigation = [

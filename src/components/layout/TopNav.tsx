@@ -100,10 +100,7 @@ export function TopNav({ onMenuClick }: TopNavProps) {
                 <UserIcon className="mr-2 h-4 w-4" />
                 <span>My Profile</span>
               </DropdownMenuItem>
-              <DropdownMenuItem render={<Link href="/settings" className="cursor-pointer w-full flex items-center" />}>
-                <SettingsIcon className="mr-2 h-4 w-4" />
-                <span>Settings</span>
-              </DropdownMenuItem>
+
               <DropdownMenuSeparator />
               <DropdownMenuItem 
                 onClick={handleLogout} 
