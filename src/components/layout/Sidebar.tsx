@@ -22,7 +22,7 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 const studentNavigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "DSA Roadmap", href: "/roadmap", icon: Map },
+  { name: "Roadmap", href: "/roadmap", icon: Map },
   { name: "Analytics", href: "/analytics", icon: BarChart2 },
   { name: "Leaderboard", href: "/leaderboard", icon: Trophy },
   { name: "Profile", href: "/profile", icon: User },
