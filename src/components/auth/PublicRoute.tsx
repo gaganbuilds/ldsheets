@@ -11,7 +11,7 @@ export const PublicRoute = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (!loading && user) {
-      router.push('/dashboard');
+      router.push('/roadmap');
     }
   }, [user, loading, router]);
 

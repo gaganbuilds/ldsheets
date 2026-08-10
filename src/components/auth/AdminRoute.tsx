@@ -14,7 +14,7 @@ export const AdminRoute = ({ children }: { children: React.ReactNode }) => {
       if (!user) {
         router.push('/login');
       } else if (profile && !(profile.role === 'admin' || profile.isAdmin)) {
-        router.push('/dashboard');
+        router.push('/roadmap');
       }
     }
   }, [user, profile, loading, router]);

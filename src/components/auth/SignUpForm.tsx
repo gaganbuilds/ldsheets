@@ -28,7 +28,7 @@ export const SignUpForm = () => {
     try {
       await signUpWithEmail(email, password, name);
       toast.success('Account created successfully!');
-      router.push('/dashboard');
+      router.push('/roadmap');
     } catch (error: any) {
       toast.error(error.message || 'Failed to create account');
     } finally {
@@ -41,7 +41,7 @@ export const SignUpForm = () => {
     try {
       await loginWithGoogle();
       toast.success('Successfully logged in with Google!');
-      router.push('/dashboard');
+      router.push('/roadmap');
     } catch (error: any) {
       toast.error(error.message || 'Failed to login with Google');
     } finally {

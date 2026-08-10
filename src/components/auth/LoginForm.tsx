@@ -27,7 +27,7 @@ export const LoginForm = () => {
     try {
       await loginWithEmail(email, password);
       toast.success('Successfully logged in!');
-      router.push('/dashboard');
+      router.push('/roadmap');
     } catch (error: any) {
       toast.error(error.message || 'Failed to login');
     } finally {
@@ -40,7 +40,7 @@ export const LoginForm = () => {
     try {
       await loginWithGoogle();
       toast.success('Successfully logged in with Google!');
-      router.push('/dashboard');
+      router.push('/roadmap');
     } catch (error: any) {
       toast.error(error.message || 'Failed to login with Google');
     } finally {
