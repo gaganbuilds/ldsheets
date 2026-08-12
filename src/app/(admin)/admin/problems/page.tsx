@@ -48,7 +48,10 @@ export default function AdminProblemsPage() {
 
   const handleOpenForm = (problem?: Problem) => {
     if (problem) {
-      setCurrentProblem(problem);
+      setCurrentProblem({
+        ...problem,
+        testCases: problem.testCases || []
+      });
     } else {
       setCurrentProblem({
         roadmapId: roadmaps.length > 0 ? roadmaps[0].id : '',
@@ -67,6 +70,9 @@ export default function AdminProblemsPage() {
         videoURL: '',
         articleURL: '',
         hint: '',
+        description: '',
+        supportedLanguages: ['python'],
+        testCases: [],
       });
     }
     setIsFormOpen(true);
@@ -144,6 +150,38 @@ export default function AdminProblemsPage() {
     p.title.toLowerCase().includes(search.toLowerCase()) || 
     p.slug.toLowerCase().includes(search.toLowerCase())
   );
+
+  const toggleLanguage = (lang: string) => {
+    const currentLangs = currentProblem.supportedLanguages || ['python'];
+    if (currentLangs.includes(lang)) {
+      setCurrentProblem({ ...currentProblem, supportedLanguages: currentLangs.filter(l => l !== lang) });
+    } else {
+      setCurrentProblem({ ...currentProblem, supportedLanguages: [...currentLangs, lang] });
+    }
+  };
+
+  const addTestCase = () => {
+    setCurrentProblem(prev => ({
+      ...prev,
+      testCases: [...(prev.testCases || []), { input: '', expectedOutput: '' }]
+    }));
+  };
+
+  const updateTestCase = (index: number, field: 'input' | 'expectedOutput', value: string) => {
+    setCurrentProblem(prev => {
+      const newTestCases = [...(prev.testCases || [])];
+      newTestCases[index] = { ...newTestCases[index], [field]: value };
+      return { ...prev, testCases: newTestCases };
+    });
+  };
+
+  const removeTestCase = (index: number) => {
+    setCurrentProblem(prev => {
+      const newTestCases = [...(prev.testCases || [])];
+      newTestCases.splice(index, 1);
+      return { ...prev, testCases: newTestCases };
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -265,6 +303,16 @@ export default function AdminProblemsPage() {
                 />
               </div>
 
+              <div className="space-y-2 col-span-1 md:col-span-2">
+                <label className="text-sm font-medium">Description (Markdown supported)</label>
+                <textarea
+                  className="w-full min-h-[200px] rounded-md border border-input bg-background px-3 py-2 text-sm font-mono ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-y"
+                  value={currentProblem.description || ''}
+                  onChange={e => setCurrentProblem({...currentProblem, description: e.target.value})}
+                  placeholder="Enter problem description. You can use Markdown formatting..."
+                />
+              </div>
+
               <div className="space-y-2">
                 <label className="text-sm font-medium">Slug</label>
                 <Input 
@@ -368,6 +416,77 @@ export default function AdminProblemsPage() {
                   onChange={e => setCurrentProblem({...currentProblem, premium: e.target.checked})}
                 />
                 <label htmlFor="isPremium" className="text-sm font-medium">Premium</label>
+              </div>
+
+              <div className="space-y-3 col-span-1 md:col-span-2 border rounded-md p-4 bg-muted/20">
+                <label className="text-sm font-medium">Supported Languages</label>
+                <div className="flex flex-wrap gap-4">
+                  {[
+                    { id: 'python', label: 'Python' },
+                    { id: 'c', label: 'C' },
+                    { id: 'cpp', label: 'C++' },
+                    { id: 'java', label: 'Java' },
+                  ].map((lang) => (
+                    <div key={lang.id} className="flex items-center space-x-2">
+                      <input 
+                        type="checkbox" 
+                        id={`lang-${lang.id}`} 
+                        checked={(currentProblem.supportedLanguages || ['python']).includes(lang.id)}
+                        onChange={() => toggleLanguage(lang.id)}
+                      />
+                      <label htmlFor={`lang-${lang.id}`} className="text-sm font-medium">{lang.label}</label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Test Cases */}
+              <div className="space-y-4 col-span-1 md:col-span-2 border rounded-md p-4 bg-muted/10">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium">Test Cases</label>
+                  <Button type="button" variant="outline" size="sm" onClick={addTestCase}>
+                    <Plus className="h-4 w-4 mr-1" /> Add Test Case
+                  </Button>
+                </div>
+                {(currentProblem.testCases || []).length === 0 ? (
+                  <p className="text-sm text-muted-foreground italic">No test cases added yet.</p>
+                ) : (
+                  <div className="space-y-4">
+                    {currentProblem.testCases!.map((tc, index) => (
+                      <div key={index} className="flex flex-col gap-2 p-3 border rounded-md bg-background relative group">
+                        <Button 
+                          type="button" 
+                          variant="ghost" 
+                          size="icon" 
+                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                          onClick={() => removeTestCase(index)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                        <div className="flex flex-col sm:flex-row gap-4 pt-4 sm:pt-0">
+                          <div className="flex-1 space-y-1">
+                            <label className="text-xs font-semibold">Input</label>
+                            <textarea
+                              className="w-full min-h-[60px] rounded-md border border-input bg-background px-3 py-2 text-sm font-mono ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-y"
+                              value={tc.input}
+                              onChange={e => updateTestCase(index, 'input', e.target.value)}
+                              placeholder="Test case input..."
+                            />
+                          </div>
+                          <div className="flex-1 space-y-1">
+                            <label className="text-xs font-semibold">Expected Output</label>
+                            <textarea
+                              className="w-full min-h-[60px] rounded-md border border-input bg-background px-3 py-2 text-sm font-mono ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-y"
+                              value={tc.expectedOutput}
+                              onChange={e => updateTestCase(index, 'expectedOutput', e.target.value)}
+                              placeholder="Expected output..."
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
             </div>

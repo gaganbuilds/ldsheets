@@ -45,6 +45,11 @@ export interface Topic extends BaseEntity {
   isActive: boolean;
 }
 
+export interface TestCase {
+  input: string;
+  expectedOutput: string;
+}
+
 export interface Problem extends BaseEntity {
   roadmapId: string;
   topicId: string;
@@ -62,6 +67,9 @@ export interface Problem extends BaseEntity {
   videoURL?: string;
   articleURL?: string;
   hint?: string;
+  description?: string;
+  supportedLanguages?: string[];
+  testCases?: TestCase[];
 }
 
 export interface Settings {
@@ -83,6 +91,11 @@ export interface UserNote extends BaseEntity {
   userId: string;
   problemId: string;
   content: string;
+}
+
+export interface UserBookmark extends BaseEntity {
+  userId: string;
+  problemId: string;
 }
 
 export interface XpHistory extends BaseEntity {

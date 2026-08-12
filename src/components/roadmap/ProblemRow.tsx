@@ -1,29 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { Problem, UserProgress, UserNote } from '@/types';
+import { Problem, UserProgress, UserNote, UserBookmark } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { markProblemComplete, markProblemIncomplete } from '@/lib/firebase/progress';
 import { saveProblemNote } from '@/lib/firebase/notes';
+import { toggleProblemBookmark } from '@/lib/firebase/bookmarks';
 import { Bookmark, Code, FileText, PlaySquare, ExternalLink, Loader2, Save, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 interface ProblemRowProps {
   problem: Problem;
   userId: string;
   initialProgress?: UserProgress;
   initialNote?: UserNote;
+  initialBookmark?: UserBookmark;
   onProgressChange?: (progress: UserProgress) => void;
 }
 
-export function ProblemRow({ problem, userId, initialProgress, initialNote, onProgressChange }: ProblemRowProps) {
+export function ProblemRow({ problem, userId, initialProgress, initialNote, initialBookmark, onProgressChange }: ProblemRowProps) {
   const [progress, setProgress] = useState<UserProgress | undefined>(initialProgress);
   const [note, setNote] = useState<UserNote | undefined>(initialNote);
   const [noteContent, setNoteContent] = useState(initialNote?.content || '');
+  const [bookmark, setBookmark] = useState<UserBookmark | undefined>(initialBookmark);
   
   const [isNotesOpen, setIsNotesOpen] = useState(false);
   const [isUpdatingProgress, setIsUpdatingProgress] = useState(false);
   const [isSavingNote, setIsSavingNote] = useState(false);
+  const [isTogglingBookmark, setIsTogglingBookmark] = useState(false);
 
   // Sync state if props change
   useEffect(() => {
@@ -34,6 +39,10 @@ export function ProblemRow({ problem, userId, initialProgress, initialNote, onPr
     setNote(initialNote);
     setNoteContent(initialNote?.content || '');
   }, [initialNote]);
+
+  useEffect(() => {
+    setBookmark(initialBookmark);
+  }, [initialBookmark]);
 
   const isCompleted = progress?.completed || false;
 
@@ -134,6 +143,24 @@ export function ProblemRow({ problem, userId, initialProgress, initialNote, onPr
     }
   };
 
+  const handleToggleBookmark = async () => {
+    if (!userId) return;
+    setIsTogglingBookmark(true);
+    try {
+      const { id, isBookmarked } = await toggleProblemBookmark(userId, problem.id, bookmark?.id);
+      if (isBookmarked && id) {
+        setBookmark({ id, userId, problemId: problem.id, createdAt: new Date(), updatedAt: new Date() });
+      } else {
+        setBookmark(undefined);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Unable to update bookmark. Please try again.");
+    } finally {
+      setIsTogglingBookmark(false);
+    }
+  };
+
   const difficultyColors = {
     Easy: 'text-green-500',
     Medium: 'text-orange-500',
@@ -202,11 +229,13 @@ export function ProblemRow({ problem, userId, initialProgress, initialNote, onPr
 
           {/* Actions */}
           <div className="shrink-0 flex items-center justify-end gap-0.5 sm:gap-1">
-            {problem.platform && (
-              <div className="p-1.5 sm:p-2 text-green-500/70" title={problem.platform}>
-                {getPlatformIcon(problem.platform)}
-              </div>
-            )}
+            <button 
+              disabled
+              className="p-1.5 sm:p-2 text-muted-foreground/30 cursor-not-allowed transition-colors"
+              title="Coming Soon"
+            >
+              {getPlatformIcon(problem.platform || 'CodeDepth')}
+            </button>
             
             {problem.videoURL && (
               <a 
@@ -245,11 +274,15 @@ export function ProblemRow({ problem, userId, initialProgress, initialNote, onPr
             )}
 
             <button 
-              className="p-1.5 sm:p-2 text-muted-foreground hover:text-foreground/80 transition-colors"
-              title="Bookmark"
-              onClick={() => toast.info("Bookmark feature coming soon!")}
+              className={cn("p-1.5 sm:p-2 transition-colors", 
+                bookmark ? "text-primary" : "text-muted-foreground hover:text-foreground/80",
+                isTogglingBookmark && "opacity-50 cursor-not-allowed"
+              )}
+              title={bookmark ? 'Remove Bookmark' : 'Bookmark'}
+              onClick={handleToggleBookmark}
+              disabled={isTogglingBookmark}
             >
-              <Bookmark className="h-4 w-4" />
+              {isTogglingBookmark ? <Loader2 className="h-4 w-4 animate-spin" /> : <Bookmark className={cn("h-4 w-4", bookmark && "fill-current")} />}
             </button>
           </div>
         </div>

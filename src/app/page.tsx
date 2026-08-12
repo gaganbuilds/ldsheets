@@ -4,6 +4,10 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { Loader2, ArrowRight, Terminal, Cpu } from 'lucide-react';
+import { OutcomesSection } from '@/components/landing/OutcomesSection';
+import { EcosystemSection } from '@/components/landing/EcosystemSection';
+import { ExperienceSection } from '@/components/landing/ExperienceSection';
+import { Footer } from '@/components/landing/Footer';
 
 export default function Home() {
   const { user, loading } = useAuth();
@@ -145,6 +149,11 @@ export default function Home() {
           </div>
         </div>
       </main>
+
+      <OutcomesSection />
+      <ExperienceSection />
+      <EcosystemSection />
+      <Footer />
     </div>
   );
 }

@@ -5,7 +5,8 @@ import { getTopicBySlug } from '@/lib/firebase/topics';
 import { getProblems } from '@/lib/firebase/problems';
 import { getUserProblemProgress } from '@/lib/firebase/progress';
 import { getProblemNotes } from '@/lib/firebase/notes';
-import { Topic, Problem, UserProgress, UserNote } from '@/types';
+import { getUserBookmarks } from '@/lib/firebase/bookmarks';
+import { Topic, Problem, UserProgress, UserNote, UserBookmark } from '@/types';
 import { SectionHeader } from '@/components/ui-custom/SectionHeader';
 import { EmptyState } from '@/components/ui-custom/EmptyState';
 import { ProblemRow } from '@/components/roadmap/ProblemRow';
@@ -25,6 +26,7 @@ export default function TopicDetailPage() {
   const [problems, setProblems] = useState<Problem[]>([]);
   const [progress, setProgress] = useState<UserProgress[]>([]);
   const [notes, setNotes] = useState<UserNote[]>([]);
+  const [bookmarks, setBookmarks] = useState<UserBookmark[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
   const [searchQuery, setSearchQuery] = useState('');
@@ -44,12 +46,14 @@ export default function TopicDetailPage() {
           setProblems(activeProblems);
           
           if (profile?.uid) {
-            const [userProgress, userNotes] = await Promise.all([
+            const [userProgress, userNotes, userBookmarks] = await Promise.all([
               getUserProblemProgress(profile.uid, foundTopic.id),
-              getProblemNotes(profile.uid, activeProblems.map(p => p.id))
+              getProblemNotes(profile.uid, activeProblems.map(p => p.id)),
+              getUserBookmarks(profile.uid, activeProblems.map(p => p.id))
             ]);
             setProgress(userProgress);
             setNotes(userNotes);
+            setBookmarks(userBookmarks);
           }
         }
       } catch (err) {
@@ -211,6 +215,7 @@ export default function TopicDetailPage() {
               userId={profile?.uid || ''}
               initialProgress={progress.find(p => p.problemId === problem.id)}
               initialNote={notes.find(n => n.problemId === problem.id)}
+              initialBookmark={bookmarks.find(b => b.problemId === problem.id)}
               onProgressChange={handleProgressChange}
             />
           ))
