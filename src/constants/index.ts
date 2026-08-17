@@ -1,4 +1,5 @@
-export const APP_NAME = 'LearnDepth DSA';
-export const APP_DESCRIPTION = 'Level up your DSA skills with our gamified roadmap.';
+export const APP_NAME = 'CodeDepth';
+export const APP_DESCRIPTION = 'Master DSA, coding, and problem solving through structured roadmaps and interactive practice.';
+export const APP_URL = 'https://codedepth.site';
 
 // Add more constants here as needed

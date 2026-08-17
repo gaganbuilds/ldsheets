@@ -2,10 +2,19 @@ import React from 'react';
 import { LandingNavbar } from '@/components/landing/LandingNavbar';
 import { Footer } from '@/components/landing/Footer';
 import type { Metadata } from 'next';
+import { APP_URL, APP_NAME } from '@/constants';
 
 export const metadata: Metadata = {
-  title: 'CodeDepth | Terms & Conditions',
-  description: 'Terms and Conditions for using the CodeDepth educational platform.',
+  title: `Terms & Conditions | ${APP_NAME}`,
+  description: `Terms and Conditions for ${APP_NAME} - Please read the rules and guidelines for using our platform.`,
+  alternates: {
+    canonical: `${APP_URL}/terms-and-conditions`,
+  },
+  openGraph: {
+    title: `Terms & Conditions | ${APP_NAME}`,
+    description: `Terms and Conditions for ${APP_NAME} - Please read the rules and guidelines for using our platform.`,
+    url: `${APP_URL}/terms-and-conditions`,
+  },
 };
 
 export default function TermsAndConditionsPage() {

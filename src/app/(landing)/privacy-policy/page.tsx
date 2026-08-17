@@ -2,10 +2,19 @@ import React from 'react';
 import { LandingNavbar } from '@/components/landing/LandingNavbar';
 import { Footer } from '@/components/landing/Footer';
 import type { Metadata } from 'next';
+import { APP_URL, APP_NAME } from '@/constants';
 
 export const metadata: Metadata = {
-  title: 'CodeDepth | Privacy Policy',
-  description: 'Privacy Policy for CodeDepth - Learn how we collect, use, and protect your data.',
+  title: `Privacy Policy | ${APP_NAME}`,
+  description: `Privacy Policy for ${APP_NAME} - Learn how we collect, use, and protect your data.`,
+  alternates: {
+    canonical: `${APP_URL}/privacy-policy`,
+  },
+  openGraph: {
+    title: `Privacy Policy | ${APP_NAME}`,
+    description: `Privacy Policy for ${APP_NAME} - Learn how we collect, use, and protect your data.`,
+    url: `${APP_URL}/privacy-policy`,
+  },
 };
 
 export default function PrivacyPolicyPage() {
