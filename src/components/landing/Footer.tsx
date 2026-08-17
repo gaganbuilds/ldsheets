@@ -88,7 +88,7 @@ export function Footer() {
         {/* Copyright */}
         <div className="mt-10 pt-6 border-t border-border/30 flex justify-center">
           <p className="text-xs text-muted-foreground italic text-center px-4">
-            Copyright © 2026 LearnDepth Academy LLP. All rights reserved.
+            Copyright CodeDepth 2026 , LEARNDEPTH ACADEMY LLP | All Rights Reserved
           </p>
         </div>
         
