@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { signUpWithEmail, loginWithGoogle } from '@/lib/firebase/auth';
+import { signUpWithEmail, loginWithGoogle, checkGoogleRedirectResult } from '@/lib/firebase/auth';
 import { toast } from 'sonner';
 import { Loader2Icon } from 'lucide-react';
 import Link from 'next/link';
@@ -16,6 +16,20 @@ export const SignUpForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    const checkRedirect = async () => {
+      try {
+        setIsGoogleLoading(true);
+        await checkGoogleRedirectResult();
+      } catch (error: any) {
+        toast.error(error.message || 'Failed to complete Google sign-in');
+      } finally {
+        setIsGoogleLoading(false);
+      }
+    };
+    checkRedirect();
+  }, []);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
