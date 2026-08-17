@@ -5,9 +5,10 @@ import { getTopicBySlug } from '@/lib/firebase/topics';
 export async function generateMetadata({
   params,
 }: {
-  params: { topicSlug: string };
+  params: Promise<{ topicSlug: string }>;
 }): Promise<Metadata> {
-  const topic = await getTopicBySlug(params.topicSlug);
+  const resolvedParams = await params;
+  const topic = await getTopicBySlug(resolvedParams.topicSlug);
   
   if (!topic) {
     return {
@@ -17,7 +18,7 @@ export async function generateMetadata({
 
   const title = `${topic.title} Roadmap | ${APP_NAME}`;
   const description = topic.description || `Master ${topic.title} with interactive coding problems and tutorials on ${APP_NAME}.`;
-  const url = `${APP_URL}/roadmap/${params.topicSlug}`;
+  const url = `${APP_URL}/roadmap/${resolvedParams.topicSlug}`;
 
   return {
     title,

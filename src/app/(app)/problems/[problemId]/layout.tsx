@@ -5,9 +5,10 @@ import { getProblem } from '@/lib/firebase/problems';
 export async function generateMetadata({
   params,
 }: {
-  params: { problemId: string };
+  params: Promise<{ problemId: string }>;
 }): Promise<Metadata> {
-  const problem = await getProblem(params.problemId);
+  const resolvedParams = await params;
+  const problem = await getProblem(resolvedParams.problemId);
   
   if (!problem) {
     return {
@@ -25,7 +26,7 @@ export async function generateMetadata({
     }
   }
 
-  const url = `${APP_URL}/problems/${params.problemId}`;
+  const url = `${APP_URL}/problems/${resolvedParams.problemId}`;
 
   return {
     title,
@@ -46,9 +47,10 @@ export default async function ProblemLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: { problemId: string };
+  params: Promise<{ problemId: string }>;
 }) {
-  const problem = await getProblem(params.problemId);
+  const resolvedParams = await params;
+  const problem = await getProblem(resolvedParams.problemId);
   
   let breadcrumbSchema = null;
   if (problem) {
@@ -66,7 +68,7 @@ export default async function ProblemLayout({
           "@type": "ListItem",
           position: 2,
           name: problem.title,
-          item: `${APP_URL}/problems/${params.problemId}`,
+          item: `${APP_URL}/problems/${resolvedParams.problemId}`,
         },
       ],
     };
