@@ -229,13 +229,13 @@ export function ProblemRow({ problem, userId, initialProgress, initialNote, init
 
           {/* Actions */}
           <div className="shrink-0 flex items-center justify-end gap-0.5 sm:gap-1">
-            <button 
-              disabled
-              className="p-1.5 sm:p-2 text-muted-foreground/30 cursor-not-allowed transition-colors"
-              title="Coming Soon"
+            <Link 
+              href={`/problems/${problem.id}`}
+              className="p-1.5 sm:p-2 text-muted-foreground hover:text-primary transition-colors"
+              title="Solve Problem"
             >
               {getPlatformIcon(problem.platform || 'CodeDepth')}
-            </button>
+            </Link>
             
             {problem.videoURL && (
               <a 

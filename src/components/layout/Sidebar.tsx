@@ -24,7 +24,8 @@ const studentNavigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Roadmap", href: "/roadmap", icon: Map },
   { name: "Analytics", href: "/analytics", icon: BarChart2 },
-  { name: "Leaderboard", href: "/leaderboard", icon: Trophy },
+  // TEMPORARILY HIDDEN
+  // { name: "Leaderboard", href: "/leaderboard", icon: Trophy },
   { name: "Profile", href: "/profile", icon: User },
 ];
 

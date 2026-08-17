@@ -9,8 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Loader2Icon, Plus, Edit, Trash2 } from 'lucide-react';
+import { Loader2Icon, Plus, Edit, Trash2, Upload } from 'lucide-react';
 import { toast } from 'sonner';
+import { BulkImportModal } from './BulkImportModal';
 
 export default function AdminProblemsPage() {
   const [problems, setProblems] = useState<Problem[]>([]);
@@ -22,6 +23,7 @@ export default function AdminProblemsPage() {
   // Dialog States
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
   const [currentProblem, setCurrentProblem] = useState<Partial<Problem>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -73,6 +75,12 @@ export default function AdminProblemsPage() {
         description: '',
         supportedLanguages: ['python'],
         testCases: [],
+        examples: [],
+        constraints: [],
+        hints: [],
+        inputFormat: '',
+        outputFormat: '',
+        starterCode: {},
       });
     }
     setIsFormOpen(true);
@@ -183,6 +191,76 @@ export default function AdminProblemsPage() {
     });
   };
 
+  const addExample = () => {
+    setCurrentProblem(prev => ({
+      ...prev,
+      examples: [...(prev.examples || []), { input: '', output: '', explanation: '' }]
+    }));
+  };
+
+  const updateExample = (index: number, field: 'input' | 'output' | 'explanation', value: string) => {
+    setCurrentProblem(prev => {
+      const newExamples = [...(prev.examples || [])];
+      newExamples[index] = { ...newExamples[index], [field]: value };
+      return { ...prev, examples: newExamples };
+    });
+  };
+
+  const removeExample = (index: number) => {
+    setCurrentProblem(prev => {
+      const newExamples = [...(prev.examples || [])];
+      newExamples.splice(index, 1);
+      return { ...prev, examples: newExamples };
+    });
+  };
+
+  const addConstraint = () => {
+    setCurrentProblem(prev => ({ ...prev, constraints: [...(prev.constraints || []), ''] }));
+  };
+
+  const updateConstraint = (index: number, value: string) => {
+    setCurrentProblem(prev => {
+      const newConstraints = [...(prev.constraints || [])];
+      newConstraints[index] = value;
+      return { ...prev, constraints: newConstraints };
+    });
+  };
+
+  const removeConstraint = (index: number) => {
+    setCurrentProblem(prev => {
+      const newConstraints = [...(prev.constraints || [])];
+      newConstraints.splice(index, 1);
+      return { ...prev, constraints: newConstraints };
+    });
+  };
+
+  const addHint = () => {
+    setCurrentProblem(prev => ({ ...prev, hints: [...(prev.hints || []), ''] }));
+  };
+
+  const updateHint = (index: number, value: string) => {
+    setCurrentProblem(prev => {
+      const newHints = [...(prev.hints || [])];
+      newHints[index] = value;
+      return { ...prev, hints: newHints };
+    });
+  };
+
+  const removeHint = (index: number) => {
+    setCurrentProblem(prev => {
+      const newHints = [...(prev.hints || [])];
+      newHints.splice(index, 1);
+      return { ...prev, hints: newHints };
+    });
+  };
+
+  const updateStarterCode = (lang: string, code: string) => {
+    setCurrentProblem(prev => ({
+      ...prev,
+      starterCode: { ...(prev.starterCode || {}), [lang]: code }
+    }));
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -190,9 +268,14 @@ export default function AdminProblemsPage() {
           <h1 className="text-3xl font-bold tracking-tight">Problems</h1>
           <p className="text-muted-foreground">Manage DSA problems.</p>
         </div>
-        <Button onClick={() => handleOpenForm()}>
-          <Plus className="mr-2 h-4 w-4" /> Add Problem
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setIsBulkImportOpen(true)}>
+            <Upload className="mr-2 h-4 w-4" /> Bulk Import
+          </Button>
+          <Button onClick={() => handleOpenForm()}>
+            <Plus className="mr-2 h-4 w-4" /> Add Problem
+          </Button>
+        </div>
       </div>
 
       <div className="flex items-center">
@@ -313,6 +396,26 @@ export default function AdminProblemsPage() {
                 />
               </div>
 
+              <div className="space-y-2 col-span-1 md:col-span-1">
+                <label className="text-sm font-medium">Input Format (optional)</label>
+                <textarea
+                  className="w-full min-h-[80px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-y"
+                  value={currentProblem.inputFormat || ''}
+                  onChange={e => setCurrentProblem({...currentProblem, inputFormat: e.target.value})}
+                  placeholder="E.g., The first line contains an integer n..."
+                />
+              </div>
+
+              <div className="space-y-2 col-span-1 md:col-span-1">
+                <label className="text-sm font-medium">Output Format (optional)</label>
+                <textarea
+                  className="w-full min-h-[80px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-y"
+                  value={currentProblem.outputFormat || ''}
+                  onChange={e => setCurrentProblem({...currentProblem, outputFormat: e.target.value})}
+                  placeholder="E.g., Print the indices of the two numbers..."
+                />
+              </div>
+
               <div className="space-y-2">
                 <label className="text-sm font-medium">Slug</label>
                 <Input 
@@ -408,14 +511,21 @@ export default function AdminProblemsPage() {
                 <label htmlFor="isActiveProb" className="text-sm font-medium">Active</label>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <input 
-                  type="checkbox" 
-                  id="isPremium" 
-                  checked={currentProblem.premium ?? false}
-                  onChange={e => setCurrentProblem({...currentProblem, premium: e.target.checked})}
-                />
-                <label htmlFor="isPremium" className="text-sm font-medium">Premium</label>
+              <div className="flex flex-col space-y-1">
+                <div className="flex items-center space-x-2">
+                  <input 
+                    type="checkbox" 
+                    id="isPremium" 
+                    checked={currentProblem.premium ?? false}
+                    onChange={e => setCurrentProblem({...currentProblem, premium: e.target.checked})}
+                  />
+                  <label htmlFor="isPremium" className="text-sm font-medium">Pro Feature</label>
+                </div>
+                {currentProblem.premium && !currentProblem.externalURL && (
+                  <p className="text-xs text-amber-500 font-medium mt-1">
+                    Warning: Pro problems should have an external solution URL.
+                  </p>
+                )}
               </div>
 
               <div className="space-y-3 col-span-1 md:col-span-2 border rounded-md p-4 bg-muted/20">
@@ -438,6 +548,155 @@ export default function AdminProblemsPage() {
                     </div>
                   ))}
                 </div>
+              </div>
+
+              {/* Starter Code Section */}
+              <div className="space-y-4 col-span-1 md:col-span-2 border rounded-md p-4 bg-muted/10">
+                <label className="text-sm font-medium">Starter Code (Optional)</label>
+                <p className="text-xs text-muted-foreground mb-2">Define default starter code for each language to pre-populate the editor.</p>
+                <div className="space-y-4">
+                  {(currentProblem.supportedLanguages || ['python']).map(lang => (
+                    <div key={lang} className="space-y-1">
+                      <label className="text-xs font-semibold uppercase">{lang}</label>
+                      <textarea
+                        className="w-full min-h-[100px] rounded-md border border-input bg-background px-3 py-2 text-sm font-mono ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-y"
+                        value={(currentProblem.starterCode || {})[lang] || ''}
+                        onChange={e => updateStarterCode(lang, e.target.value)}
+                        placeholder={`Starter code for ${lang}...`}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Examples Section */}
+              <div className="space-y-4 col-span-1 md:col-span-2 border rounded-md p-4 bg-muted/10">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium">Examples</label>
+                  <Button type="button" variant="outline" size="sm" onClick={addExample}>
+                    <Plus className="h-4 w-4 mr-1" /> Add Example
+                  </Button>
+                </div>
+                {(currentProblem.examples || []).length === 0 ? (
+                  <p className="text-sm text-muted-foreground italic">No examples added.</p>
+                ) : (
+                  <div className="space-y-4">
+                    {currentProblem.examples!.map((ex, index) => (
+                      <div key={index} className="flex flex-col gap-2 p-3 border rounded-md bg-background relative group">
+                        <Button 
+                          type="button" 
+                          variant="ghost" 
+                          size="icon" 
+                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-red-500"
+                          onClick={() => removeExample(index)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                        <h4 className="text-sm font-semibold mb-2">Example {index + 1}</h4>
+                        <div className="flex flex-col sm:flex-row gap-4">
+                          <div className="flex-1 space-y-1">
+                            <label className="text-xs font-semibold">Input</label>
+                            <textarea
+                              className="w-full min-h-[60px] rounded-md border border-input bg-background px-3 py-2 text-sm font-mono resize-y"
+                              value={ex.input}
+                              onChange={e => updateExample(index, 'input', e.target.value)}
+                              placeholder="e.g. nums = [2,7,11,15], target = 9"
+                            />
+                          </div>
+                          <div className="flex-1 space-y-1">
+                            <label className="text-xs font-semibold">Output</label>
+                            <textarea
+                              className="w-full min-h-[60px] rounded-md border border-input bg-background px-3 py-2 text-sm font-mono resize-y"
+                              value={ex.output}
+                              onChange={e => updateExample(index, 'output', e.target.value)}
+                              placeholder="e.g. [0,1]"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-1 mt-2">
+                          <label className="text-xs font-semibold">Explanation (optional)</label>
+                          <textarea
+                            className="w-full min-h-[40px] rounded-md border border-input bg-background px-3 py-2 text-sm resize-y"
+                            value={ex.explanation || ''}
+                            onChange={e => updateExample(index, 'explanation', e.target.value)}
+                            placeholder="Explanation of the example..."
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Constraints Section */}
+              <div className="space-y-4 col-span-1 md:col-span-2 border rounded-md p-4 bg-muted/10">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium">Constraints</label>
+                  <Button type="button" variant="outline" size="sm" onClick={addConstraint}>
+                    <Plus className="h-4 w-4 mr-1" /> Add Constraint
+                  </Button>
+                </div>
+                {(currentProblem.constraints || []).length === 0 ? (
+                  <p className="text-sm text-muted-foreground italic">No constraints added.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {currentProblem.constraints!.map((c, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground w-4">{index + 1}.</span>
+                        <Input
+                          className="font-mono text-sm flex-1"
+                          value={c}
+                          onChange={e => updateConstraint(index, e.target.value)}
+                          placeholder="e.g. 2 <= nums.length <= 10^4"
+                        />
+                        <Button type="button" variant="ghost" size="icon" className="text-red-500" onClick={() => removeConstraint(index)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Hints Section */}
+              <div className="space-y-4 col-span-1 md:col-span-2 border rounded-md p-4 bg-muted/10">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium">Hints</label>
+                  <Button type="button" variant="outline" size="sm" onClick={addHint}>
+                    <Plus className="h-4 w-4 mr-1" /> Add Hint
+                  </Button>
+                </div>
+                {/* Legacy single hint support */}
+                {currentProblem.hint && (!currentProblem.hints || currentProblem.hints.length === 0) && (
+                  <div className="mb-4 space-y-1">
+                    <label className="text-xs text-amber-600 font-semibold">Legacy Hint (will be preserved if new hints not added)</label>
+                    <textarea
+                      className="w-full min-h-[40px] rounded-md border border-input bg-background px-3 py-2 text-sm resize-y"
+                      value={currentProblem.hint}
+                      onChange={e => setCurrentProblem({...currentProblem, hint: e.target.value})}
+                    />
+                  </div>
+                )}
+                {(currentProblem.hints || []).length === 0 ? (
+                  <p className="text-sm text-muted-foreground italic">No hints added.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {currentProblem.hints!.map((h, index) => (
+                      <div key={index} className="flex gap-2">
+                        <span className="text-xs text-muted-foreground mt-3 w-4">{index + 1}.</span>
+                        <textarea
+                          className="w-full min-h-[60px] rounded-md border border-input bg-background px-3 py-2 text-sm resize-y"
+                          value={h}
+                          onChange={e => updateHint(index, e.target.value)}
+                          placeholder={`Hint ${index + 1}...`}
+                        />
+                        <Button type="button" variant="ghost" size="icon" className="text-red-500 mt-1" onClick={() => removeHint(index)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Test Cases */}
@@ -519,6 +778,19 @@ export default function AdminProblemsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Bulk Import Modal */}
+      <BulkImportModal 
+        isOpen={isBulkImportOpen} 
+        onClose={() => setIsBulkImportOpen(false)} 
+        onSuccess={() => {
+          setIsBulkImportOpen(false);
+          fetchData();
+        }}
+        problems={problems}
+        roadmaps={roadmaps}
+        topics={topics}
+      />
 
     </div>
   );

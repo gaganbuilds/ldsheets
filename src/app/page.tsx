@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
@@ -8,39 +9,91 @@ import { OutcomesSection } from '@/components/landing/OutcomesSection';
 import { EcosystemSection } from '@/components/landing/EcosystemSection';
 import { ExperienceSection } from '@/components/landing/ExperienceSection';
 import { Footer } from '@/components/landing/Footer';
+import { LandingNavbar } from '@/components/landing/LandingNavbar';
+
+const WORDS = ["DSA", "DATA SCIENCE", "SYSTEM DESIGN", "PROBLEM SOLVING"];
+const TYPING_SPEED = 80;
+const DELETING_SPEED = 50;
+const PAUSE_AFTER_COMPLETE = 1400;
+const PAUSE_BEFORE_NEXT = 300;
+
+function TypewriterHeadline() {
+  const [wordIndex, setWordIndex] = useState(0);
+  const [displayText, setDisplayText] = useState("");
+  const [phase, setPhase] = useState<"TYPING" | "DELETING">("TYPING");
+  
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setReducedMotion(mediaQuery.matches);
+    const listener = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+    mediaQuery.addEventListener('change', listener);
+    return () => mediaQuery.removeEventListener('change', listener);
+  }, []);
+
+  useEffect(() => {
+    if (reducedMotion) {
+      setDisplayText("DSA");
+      return;
+    }
+
+    const currentWord = WORDS[wordIndex];
+    let timeout: NodeJS.Timeout;
+
+    if (phase === "TYPING") {
+      if (displayText.length < currentWord.length) {
+        timeout = setTimeout(() => {
+          setDisplayText(currentWord.slice(0, displayText.length + 1));
+        }, TYPING_SPEED);
+      } else {
+        timeout = setTimeout(() => {
+          setPhase("DELETING");
+        }, PAUSE_AFTER_COMPLETE);
+      }
+    } else if (phase === "DELETING") {
+      if (displayText.length > 0) {
+        timeout = setTimeout(() => {
+          setDisplayText(prev => prev.slice(0, -1));
+        }, DELETING_SPEED);
+      } else {
+        timeout = setTimeout(() => {
+          setWordIndex((prev) => (prev + 1) % WORDS.length);
+          setPhase("TYPING");
+        }, PAUSE_BEFORE_NEXT);
+      }
+    }
+
+    return () => clearTimeout(timeout);
+  }, [displayText, phase, wordIndex, reducedMotion]);
+
+  return (
+    <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-6 text-foreground leading-[1.1]">
+      MASTER <br />
+      <span className="grid justify-items-start">
+        <span className="col-start-1 row-start-1 invisible" aria-hidden="true">
+          <span className="text-transparent bg-clip-text font-extrabold tracking-tight leading-[1.1]">PROBLEM SOLVING</span>
+        </span>
+        <span className="col-start-1 row-start-1 flex items-center">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">
+            {displayText}
+          </span>
+          {!reducedMotion && (
+            <span className="inline-block w-[3px] sm:w-[5px] h-[1em] bg-primary ml-2 animate-pulse rounded-sm"></span>
+          )}
+        </span>
+      </span>
+      <br />SKILLS.
+    </h1>
+  );
+}
 
 export default function Home() {
   const { user, loading } = useAuth();
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-primary/30">
-      {/* Navbar */}
-      <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
-        <div className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between max-w-7xl">
-          <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="CodeDepth" className="h-12 w-auto object-contain" />
-          </div>
-
-          <nav className="flex items-center gap-4">
-            {loading ? (
-              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
-            ) : user ? (
-              <Button render={<Link href="/dashboard" />} variant="default" size="sm" className="rounded-full font-semibold px-6">
-                Go to Dashboard <ArrowRight className="ml-2 w-4 h-4" />
-              </Button>
-            ) : (
-              <>
-                <Button render={<Link href="/login" />} variant="ghost" size="sm" className="hidden sm:flex text-muted-foreground hover:text-foreground">
-                  Sign In
-                </Button>
-                <Button render={<Link href="/signup" />} variant="default" size="sm" className="rounded-full font-semibold px-6">
-                  Start Learning Free
-                </Button>
-              </>
-            )}
-          </nav>
-        </div>
-      </header>
+      <LandingNavbar />
 
       {/* Hero Section */}
       <main className="flex-1 flex items-center">
@@ -54,15 +107,10 @@ export default function Home() {
                 Beta v0.1 Available Now
               </div>
               
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-6 text-foreground leading-[1.1]">
-                MASTER DSA. <br />
-                BUILD YOUR <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">PROBLEM-SOLVING</span>
-                <br />SKILLS.
-              </h1>
+              <TypewriterHeadline />
               
               <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-[480px] leading-relaxed">
-                Learn DSA through structured roadmaps, real coding problems, progress tracking, and a learning system built to help you improve consistently.
+                Build real problem-solving skills through structured roadmaps, hands-on coding, Data Science, DSA, and System Design — all in one learning platform.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">

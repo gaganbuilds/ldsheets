@@ -50,6 +50,12 @@ export interface TestCase {
   expectedOutput: string;
 }
 
+export interface ProblemExample {
+  input: string;
+  output: string;
+  explanation?: string;
+}
+
 export interface Problem extends BaseEntity {
   roadmapId: string;
   topicId: string;
@@ -70,6 +76,12 @@ export interface Problem extends BaseEntity {
   description?: string;
   supportedLanguages?: string[];
   testCases?: TestCase[];
+  examples?: ProblemExample[];
+  constraints?: string[];
+  hints?: string[];
+  inputFormat?: string;
+  outputFormat?: string;
+  starterCode?: Record<string, string>;
 }
 
 export interface Settings {

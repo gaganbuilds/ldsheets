@@ -66,9 +66,9 @@ export function Footer() {
             <span className="hidden sm:inline-block w-px h-3 bg-border" />
             <Link href="#" className="hover:text-foreground transition-colors">Pricing</Link>
             <span className="hidden sm:inline-block w-px h-3 bg-border" />
-            <Link href="#" className="hover:text-foreground transition-colors">Privacy Policy</Link>
+            <Link href="/privacy-policy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
             <span className="hidden sm:inline-block w-px h-3 bg-border" />
-            <Link href="#" className="hover:text-foreground transition-colors">Terms and Conditions</Link>
+            <Link href="/terms-and-conditions" className="hover:text-foreground transition-colors">Terms and Conditions</Link>
           </nav>
 
           {/* Social Icons */}

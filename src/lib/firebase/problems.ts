@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, query, where, orderBy, Timestamp } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, query, where, orderBy, Timestamp, writeBatch } from 'firebase/firestore';
 import { db } from './config';
 import { Problem } from '@/types';
 
@@ -49,6 +49,37 @@ export const createProblem = async (problem: Omit<Problem, 'id' | 'createdAt' | 
     updatedAt: now,
   });
   return docRef.id;
+};
+
+export const bulkCreateProblems = async (problems: Omit<Problem, 'id' | 'createdAt' | 'updatedAt'>[]): Promise<{ imported: number, failed: number }> => {
+  let importedCount = 0;
+  let failedCount = 0;
+  try {
+    const chunkSize = 400; // Safe batch size
+    for (let i = 0; i < problems.length; i += chunkSize) {
+      const chunk = problems.slice(i, i + chunkSize);
+      const batch = writeBatch(db);
+      
+      const now = Timestamp.now();
+      chunk.forEach(problem => {
+        const docRef = doc(collection(db, COLLECTION_NAME));
+        batch.set(docRef, {
+          ...problem,
+          createdAt: now,
+          updatedAt: now,
+        });
+      });
+      
+      await batch.commit();
+      importedCount += chunk.length;
+    }
+    return { imported: importedCount, failed: failedCount };
+  } catch (error) {
+    console.error("Bulk create failed:", error);
+    // Return what we successfully imported, and the remaining as failed
+    failedCount = problems.length - importedCount;
+    return { imported: importedCount, failed: failedCount };
+  }
 };
 
 export const updateProblem = async (id: string, problem: Partial<Omit<Problem, 'id' | 'createdAt' | 'updatedAt'>>): Promise<void> => {
